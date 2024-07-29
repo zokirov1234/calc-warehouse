@@ -16,14 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 @Tag(name = "Attach")
 @AllArgsConstructor
 public class AttachController {
-    /*
-     * requestParam multipartFile
-     *
-     * dto original fileName, id
-     *
-     *   remove id search database get(id) remove path
-     *
-     * */
 
     private final AttachService attachService;
 
