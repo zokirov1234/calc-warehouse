@@ -27,4 +27,25 @@ public class BeanMapper {
     public MaterialMapper materialMapper() {
         return Mappers.getMapper(MaterialMapper.class);
     }
+
+    @Bean
+    public ClientGroupMapper clientGroupMapper() {
+        return Mappers.getMapper(ClientGroupMapper.class);
+    }
+
+    @Bean
+    public CurrenciesMapper currenciesMapper() {
+        return Mappers.getMapper(CurrenciesMapper.class);
+    }
+
+    @Bean
+    public EducationTypeMapper educationTypeMapper() {
+        return Mappers.getMapper(EducationTypeMapper.class);
+    }
+
+    @Bean
+    public TypeMaterialsMapper typeMaterialsMapper() {
+        return Mappers.getMapper(TypeMaterialsMapper.class);
+    }
+
 }

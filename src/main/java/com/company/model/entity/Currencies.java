@@ -1,35 +1,34 @@
 package com.company.model.entity;
 
-
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
 
-@Data
-@ToString
+@Entity
 @AllArgsConstructor
 @NoArgsConstructor
+@Data
+@Table(name = "currencies")
 @Builder
-@Entity
-@Table(name = "attach")
-public class AttachEntity {
+@DynamicInsert
+public class Currencies {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column
-    private String extension;
-    @Column(name = "original_name")
-    private String originalName;
-    private String fileName;
-    @Column
-    private Long size;
-    @Column
-    private String path;
+    private String name;
+
+    private String shortName;
+
+    private double value;
+
     @Column(name = "state", columnDefinition = "boolean default true")
     private Boolean state;
 
@@ -40,5 +39,4 @@ public class AttachEntity {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private Timestamp updatedAt;
-
 }

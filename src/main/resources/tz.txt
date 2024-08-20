@@ -1,0 +1,19 @@
+
+                                Calc warehouse
+
+            Tables
+
+1. Type materials
+    id, name, type(enum)
+
+2. Roles
+    id, role(enum)
+
+3. Currency type
+    id, name, shortname, value
+
+4. Client group
+    id, name
+
+5. Education type
+    id, name

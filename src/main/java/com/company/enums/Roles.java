@@ -16,6 +16,9 @@ import static com.company.enums.Permission.*;
 public enum Roles {
 
     USER(Collections.emptySet()),
+    WAREHOUSE_MANAGER(Collections.emptySet()),
+    SALES_MANAGER(Collections.emptySet()),
+    HR_MANAGER(Collections.emptySet()),
     ADMIN(
             Set.of(
                     ADMIN_READ,

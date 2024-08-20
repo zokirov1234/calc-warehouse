@@ -1,35 +1,33 @@
 package com.company.model.entity;
 
-
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
 
-@Data
-@ToString
+@Entity
 @AllArgsConstructor
 @NoArgsConstructor
+@Data
+@Table(name = "client_group")
 @Builder
-@Entity
-@Table(name = "attach")
-public class AttachEntity {
+@DynamicInsert
+public class ClientGroup {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column
-    private String extension;
-    @Column(name = "original_name")
-    private String originalName;
-    private String fileName;
-    @Column
-    private Long size;
-    @Column
-    private String path;
+    private String name;
+
     @Column(name = "state", columnDefinition = "boolean default true")
     private Boolean state;
 
@@ -40,5 +38,4 @@ public class AttachEntity {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private Timestamp updatedAt;
-
 }
