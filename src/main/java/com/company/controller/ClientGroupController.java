@@ -19,23 +19,24 @@ public class ClientGroupController {
     public ResponseEntity<?> add(
             @RequestBody ClientGroupForm clientGroupForm
     ) {
-        log.info("Add client group: {}", clientGroupForm);
+        log.info("Received add client group: {}", clientGroupForm);
         return clientGroupService.add(clientGroupForm);
     }
 
     @PutMapping("/update/{id}")
     public ResponseEntity<?> update(
+            @PathVariable int id,
             @RequestBody ClientGroupForm clientGroupForm
     ) {
-        log.info("Update client group with id: {}", clientGroupForm);
-        return clientGroupService.update(clientGroupForm);
+        log.info("Received update client group with id: {}", id);
+        return clientGroupService.update(id, clientGroupForm);
     }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> delete(
             @PathVariable("id") int id
     ) {
-        log.info("Delete client group with id: {}", id);
+        log.info("Received delete client group with id: {}", id);
         return clientGroupService.delete(id);
     }
 
@@ -43,13 +44,13 @@ public class ClientGroupController {
     public ResponseEntity<?> get(
             @PathVariable("id") int id
     ) {
-        log.info("Get client group with id: {}", id);
+        log.info("Received get client group with id: {}", id);
         return clientGroupService.get(id);
     }
 
     @GetMapping("/list")
     public ResponseEntity<?> list() {
-        log.info("List client group");
+        log.info("Received list client group");
         return clientGroupService.list();
     }
 

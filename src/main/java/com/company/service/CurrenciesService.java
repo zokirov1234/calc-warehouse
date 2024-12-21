@@ -8,7 +8,7 @@ public interface CurrenciesService {
 
     ResponseEntity<?> add(CurrenciesForm currenciesForm);
 
-    ResponseEntity<?> update(CurrenciesForm currenciesForm);
+    ResponseEntity<?> update(int id, CurrenciesForm currenciesForm);
 
     ResponseEntity<?> delete(int currenciesId);
 

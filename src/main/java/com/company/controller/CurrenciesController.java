@@ -25,10 +25,11 @@ public class CurrenciesController {
 
     @PutMapping("/update/{id}")
     public ResponseEntity<?> update(
+            @PathVariable int id,
             @RequestBody CurrenciesForm currenciesForm
     ) {
-        log.info("Update currencies with id: {}", currenciesForm);
-        return currenciesService.update(currenciesForm);
+        log.info("Update currencies with id: {}", id);
+        return currenciesService.update(id, currenciesForm);
     }
 
     @DeleteMapping("/delete/{id}")

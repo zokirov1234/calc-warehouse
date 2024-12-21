@@ -18,7 +18,6 @@ public interface UserRepository extends JpaRepository<UserEntity, Integer> {
     @Query("select user from UserEntity user where user.username = ?1")
     Optional<UserEntity> findByUsername(String username);
 
-    @Transactional
     @Modifying
     @Query("UPDATE UserEntity u SET u.state = false, u.username = ?1 where u.id = ?2")
     void deleteUserById(String username, int id);
@@ -28,7 +27,6 @@ public interface UserRepository extends JpaRepository<UserEntity, Integer> {
     @Query("SELECT u FROM UserEntity u WHERE u.id = ?1 AND u.state = true ")
     UserEntity findUserById(int id);
 
-    @Transactional
     @Modifying
     @Query("update UserEntity set firstName = ?1, lastName = ?2, username = ?3, password = ?4, roles = ?5 where id = ?6")
     void updateUser(String firstName, String lastName, String username, String password, Roles roles, int id);

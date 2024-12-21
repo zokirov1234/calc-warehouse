@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import static com.company.enums.Permission.*;
 
 
+@Getter
 @RequiredArgsConstructor
 public enum Roles {
 
@@ -42,7 +43,6 @@ public enum Roles {
 
     ;
 
-    @Getter
     private final Set<Permission> permissions;
 
     public List<SimpleGrantedAuthority> getAuthorities() {

@@ -11,24 +11,24 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
 
-@Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@Table(name = "type_materials")
+@Entity
+@Table(name = "warehouse_category_user_access")
 @Builder
 @DynamicInsert
-public class TypeMaterials {
+public class WarehouseCategoryUserAccess {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private String name;
+    @Column(name = "warehouse_category_id")
+    private int warehouseCategoryId;
 
-    private String shortName;
-
-    @Column(name = "state", columnDefinition = "boolean default true")
-    private Boolean state;
+    @Column(name = "user_id")
+    private int userId;
 
     @CreationTimestamp
     @Column(name = "created_at")

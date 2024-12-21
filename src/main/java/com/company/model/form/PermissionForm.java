@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @Builder
-public class TypeMaterialsForm {
+public class PermissionForm {
 
     private String name;
-    private String shortName;
+    private int roleId;
 }

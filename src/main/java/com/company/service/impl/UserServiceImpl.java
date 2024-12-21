@@ -3,16 +3,16 @@ package com.company.service.impl;
 import com.company.config.JwtService;
 import com.company.enums.Roles;
 import com.company.mapper.UserMapper;
-import com.company.model.dto.ResponseDto;
 import com.company.model.dto.UserDto;
 import com.company.model.entity.UserEntity;
 import com.company.model.form.BaseForm;
+import com.company.model.form.UserCreateForm;
 import com.company.model.form.UserForm;
 import com.company.model.form.UserListForm;
 import com.company.repository.UserRepository;
 import com.company.service.UserService;
 import com.company.service.general.CommonService;
-import com.company.util.BaseUtil;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
@@ -24,194 +24,166 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static com.company.util.ResponseBaseUtil.buildResponse;
 
 @Slf4j
 @Service
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    /*
-     * if password == null
-     *  set old password else new password
-     * */
-
     private final UserRepository userRepository;
-
     private final PasswordEncoder passwordEncoder;
-
-    private final BaseUtil baseUtil;
-
     private final AuthenticationManager authenticationManager;
-
     private final JwtService jwtService;
-
     private final UserMapper userMapper;
-
     private final CommonService commonService;
-
 
     @Override
     public ResponseEntity<?> doRegister(UserForm userForm) {
-        ResponseDto<?> response;
-
-        UserEntity user;
         try {
-
             userForm.setPassword(passwordEncoder.encode(userForm.getPassword()));
-
-            user = userRepository.save(userMapper.UserFormToUserEntity(userForm));
-
+            UserEntity user = userRepository.save(userMapper.UserFormToUserEntity(userForm));
+            log.info("User saved successfully");
+            return buildResponse(formToDto(userForm, user.getId()), "User registered successfully", true, 200);
         } catch (Exception exception) {
             log.warn("User creation failed, Item found exception");
-            response = baseUtil.convertResponseDto(null, "Item found exception", false, 500);
-            return ResponseEntity.status(500).body(response);
+            return buildResponse(null, "Item found exception", false, 500);
         }
-
-        log.info("User saved successfully");
-        response = baseUtil.convertResponseDto(baseUtil.formToDto(userForm, user.getId()), "success", true, 200);
-        return ResponseEntity.status(200).body(response);
     }
-
 
     @Override
     public ResponseEntity<?> doLogin(BaseForm baseForm) {
-        String token = "";
-
-        ResponseDto<?> response;
-
-        Optional<UserEntity> username
-                = userRepository.findByUsername(baseForm.getField());
-
-        String dtoUsername = "";
-        String role = "";
-
+        Optional<UserEntity> username = userRepository.findByUsername(baseForm.getField());
         if (username.isEmpty()) {
-            log.warn("There is no user with this username");
-            response = baseUtil.convertResponseDto(null, "Username or password wrong", false, 500);
-            return ResponseEntity.status(500).body(response);
+            log.warn("No user found with this username");
+            return buildResponse(null, "Username or password wrong", false, 500);
         }
-
-
         Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(baseForm.getField(), baseForm.getObject()));
 
         if (!username.get().getState()) {
-            log.warn("User has been deleted");
-
-            response = baseUtil.convertResponseDto(null, "User is deleted", false, 403);
-            return ResponseEntity.status(403).body(response);
+            log.warn("User is deleted");
+            return buildResponse(null, "User is deleted", false, 403);
         }
-
         if (!auth.isAuthenticated()) {
-            log.warn("There is no user with this username");
-            response = baseUtil.convertResponseDto(null, "Username or password wrong", false, 500);
-            return ResponseEntity.status(500).body(response);
+            log.warn("Authentication failed for user {}", baseForm.getField());
+            return buildResponse(null, "Username or password wrong", false, 500);
         } else {
-            token = jwtService.generateToken(baseForm.getField());
-            dtoUsername = username.get().getUsername();
-            role = username.get().getRoles().toString();
+            String token = jwtService.generateToken(baseForm.getField());
+            Map<String, String> map = new HashMap<>();
+            map.put("token", token);
+            map.put("username", username.get().getUsername());
+            map.put("role", username.get().getRoles().toString());
+            log.info("Login successful");
+            return buildResponse(map, "Login successful", true, 200);
         }
-
-
-        log.info("logged success");
-        Map<String, String> map = new HashMap<>();
-        map.put("token", token);
-        map.put("username", dtoUsername);
-        map.put("role", role);
-
-        response = baseUtil.convertResponseDto(map, "success", true, 200);
-        return ResponseEntity.status(200).body(response);
     }
 
     @Override
-    public ResponseEntity<ResponseDto<UserDto>> getUserById(Integer id) {
-        ResponseDto<?> response;
-
-        response = baseUtil.convertResponseDto(userMapper.UserToUserDTO(userRepository.findUserById(id)), "success", true, 200);
-
-        return ResponseEntity.status(200).body((ResponseDto<UserDto>) response);
-
+    public ResponseEntity<?> getUserById(Integer id) {
+        return buildResponse(userMapper.UserToUserDTO(userRepository.findUserById(id)), "User found", true, 200);
     }
 
+    @Transactional
     @CacheEvict(value = "users", allEntries = true)
     @Override
     public ResponseEntity<?> updateUserById(int id, UserForm userForm) {
-        ResponseDto<?> response;
-
         try {
             UserEntity user = userRepository.findUserById(id);
-            if (ObjectUtils.isEmpty(userForm.getPassword())){
+            if (ObjectUtils.isEmpty(userForm.getPassword())) {
                 userForm.setPassword(user.getPassword());
-            }else {
+            } else {
                 userForm.setPassword(passwordEncoder.encode(userForm.getPassword()));
             }
-            userRepository.updateUser(userForm.getFirstName(),
-                    userForm.getLastName(), userForm.getUsername(),
-                    userForm.getPassword(),
-                    Roles.valueOf(userForm.getRole()), id);
-            response = baseUtil.convertResponseDto(null, "User updated successfully", true, 200);
-            return ResponseEntity.status(200).body(response);
+            userRepository.updateUser(userForm.getFirstName(), userForm.getLastName(), userForm.getUsername(),
+                    userForm.getPassword(), Roles.valueOf(userForm.getRole()), id);
+            return buildResponse(null, "User updated successfully", true, 200);
         } catch (Exception e) {
-            e.printStackTrace();
-            response = baseUtil.convertResponseDto(null, "Something went wrong while updating user", false, 500);
-            return ResponseEntity.status(500).body(response);
+            log.error("Error updating user: {}", e.getMessage());
+            return buildResponse(null, "Error updating user", false, 500);
         }
     }
 
+    @Transactional
     @Override
     public ResponseEntity<?> deleteUserById(int id) {
-        ResponseDto<?> response;
-
         try {
-
             String newUsername = commonService.updateState(userRepository.findUserById(id).getUsername());
-
             userRepository.deleteUserById(newUsername, id);
             log.info("User deleted successfully");
-            response = baseUtil.convertResponseDto(null, "success", true, 200);
-            return ResponseEntity.status(200).body(response);
+            return buildResponse(null, "User deleted successfully", true, 200);
         } catch (Exception e) {
-            e.printStackTrace();
-            log.info("Something went wrong while deleting user {}", id);
-            response = baseUtil.convertResponseDto(null, "Something went wrong while deleting user", false, 500);
-            return ResponseEntity.status(500).body(response);
+            log.error("Error deleting user: {}", e.getMessage());
+            return buildResponse(null, "Error deleting user", false, 500);
         }
     }
 
     @Override
     public ResponseEntity<?> listUsers(UserListForm userListForm) {
-        ResponseDto<?> response;
-
         log.info("Getting list of users");
-
-        List<UserEntity> userList
-                = userRepository.findUserList(userListForm.getUsername(), userListForm.getFirstName(), userListForm.getLastName());
-
+        List<UserEntity> userList = userRepository.findUserList(userListForm.getUsername(), userListForm.getFirstName(), userListForm.getLastName());
         int start = userListForm.getPage() * userListForm.getSize();
         int end = userListForm.getSize() * (userListForm.getPage() + 1);
-
-
         if (end > userList.size()) {
-
-            if (start > userList.size()) {
-                start = 0;
-            }
-
+            if (start > userList.size()) start = 0;
             end = userList.size();
         }
-
-        List<UserDto> dtoList = new ArrayList<>();
-
-        for (UserEntity user : userList.subList(start, end)) {
-            dtoList.add(userMapper.UserToUserDTO(user));
-        }
+        List<UserDto> listDto = userList.subList(start, end).stream()
+                .map(userMapper::UserToUserDTO)
+                .toList();
 
         Map<String, Object> res = new HashMap<>();
-        res.put("list", dtoList);
-        res.put("count", dtoList.size());
-        response = baseUtil.convertResponseDto(res, "success", true, 200);
-        return ResponseEntity.status(200).body(response);
+        res.put("list", listDto);
+        res.put("count", listDto.size());
+        return buildResponse(res, "Users list retrieved successfully", true, 200);
     }
 
+    @Override
+    public ResponseEntity<?> createUser(UserCreateForm userCreateForm) {
+        Optional<UserEntity> userOptional = userRepository.findByUsername(userCreateForm.getUsername());
+        if (userOptional.isPresent()) {
+            log.warn("Username already exists {}", userCreateForm.getUsername());
+            return buildResponse(null, "Username already exists", false, 400);
+        }
+        try {
+            userRepository.save(createUserBuilder(userCreateForm));
+        } catch (Exception e) {
+            log.error("Error creating user: {}", e.getMessage());
+            return buildResponse(null, "Error creating user", false, 500);
+        }
+        log.info("User created successfully {}", userCreateForm.getUsername());
+        return buildResponse(null, "User created successfully", true, 200);
+    }
+
+    private UserEntity createUserBuilder(UserCreateForm userCreateForm) {
+        return UserEntity.builder()
+                .username(userCreateForm.getUsername())
+                .firstName(userCreateForm.getFirstName())
+                .lastName(userCreateForm.getLastName())
+                .middleName(userCreateForm.getMiddleName())
+                .isMale(userCreateForm.isMale())
+                .attachId(userCreateForm.getAttachId())
+                .isWorking(userCreateForm.isWorking())
+                .dateOfBirth(userCreateForm.getDateOfBirth())
+                .educationTypeId(userCreateForm.getEducationTypeId())
+                .salaryType(userCreateForm.getSalaryType())
+                .password(userCreateForm.getPassword())
+                .phoneNumber(userCreateForm.getPhoneNumber())
+                .build();
+    }
+
+    private UserDto formToDto(UserForm userForm, int id) {
+        return UserDto.builder()
+                .id(id)
+                .firstName(userForm.getFirstName())
+                .lastName(userForm.getLastName())
+                .username(userForm.getUsername())
+                .role(userForm.getRole())
+                .build();
+    }
 }

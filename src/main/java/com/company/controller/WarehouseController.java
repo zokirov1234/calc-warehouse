@@ -1,5 +1,6 @@
 package com.company.controller;
 
+import com.company.model.form.UserWarehouseForm;
 import com.company.model.form.WarehouseForm;
 import com.company.service.WarehouseService;
 import lombok.AllArgsConstructor;
@@ -52,6 +53,14 @@ public class WarehouseController {
     ) {
         log.info("Received get warehouse request {}", id);
         return warehouseService.getWarehouse(id);
+    }
+
+    @PostMapping("/add-user")
+    public ResponseEntity<?> addUserToWarehouse(
+            @RequestBody UserWarehouseForm warehouseForm
+    ) {
+        log.info("Received add user to warehouse request {}", warehouseForm);
+        return warehouseService.addUserWarehouse(warehouseForm);
     }
 
 }

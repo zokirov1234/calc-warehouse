@@ -1,11 +1,12 @@
 package com.company.model.entity;
 
+import com.company.enums.Roles;
+import com.company.enums.SalaryType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.company.enums.Roles;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -21,7 +22,6 @@ import java.sql.Timestamp;
 @DynamicInsert
 public class UserEntity {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -32,6 +32,9 @@ public class UserEntity {
     @Column(name = "last_name")
     private String lastName;
 
+    @Column(name = "middle_name")
+    private String middleName;
+
     @Column(unique = true)
     private String username;
 
@@ -39,6 +42,21 @@ public class UserEntity {
 
     @Enumerated(EnumType.STRING)
     private Roles roles;
+
+    @Enumerated(EnumType.STRING)
+    private SalaryType salaryType;
+
+    private boolean isWorking;
+
+    private Timestamp dateOfBirth;
+
+    private boolean isMale;
+
+    private int educationTypeId;
+
+    private String phoneNumber;
+
+    private int attachId;
 
     @Column(name = "state", columnDefinition = "boolean default true")
     private Boolean state;

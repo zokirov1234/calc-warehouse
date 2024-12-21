@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @Builder
-public class CurrenciesForm {
+public class ClientGroupForm {
 
     private int id;
     private String name;

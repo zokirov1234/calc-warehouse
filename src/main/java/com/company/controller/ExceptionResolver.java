@@ -1,7 +1,7 @@
 package com.company.controller;
 
-import lombok.extern.slf4j.Slf4j;
 import com.company.model.dto.ResponseDto;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -13,15 +13,11 @@ public class ExceptionResolver {
 
     @ExceptionHandler(value = Exception.class)
     public ResponseEntity<?> handleSecurityException(Exception ex) {
-
         ResponseDto<?> responseDto = new ResponseDto<>();
-
         if (ex instanceof BadCredentialsException) {
             responseDto.setCode(401);
         }
-
         log.error("Error occurred by cause : {}, message : {}", ex.getCause(), ex.getMessage());
-
         responseDto.setMessage(ex.getMessage());
         responseDto.setCode(403);
         responseDto.setSuccess(Boolean.FALSE);

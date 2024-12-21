@@ -9,11 +9,8 @@ import java.util.Calendar;
 public class CommonService {
 
     public String updateState(String name) {
-
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
-
         name = name + timeStamp;
-
         return name;
     }
 }

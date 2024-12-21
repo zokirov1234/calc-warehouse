@@ -5,10 +5,9 @@ import org.springframework.http.ResponseEntity;
 
 public interface ClientGroupService {
 
-
     ResponseEntity<?> add(ClientGroupForm clientGroupForm);
 
-    ResponseEntity<?> update(ClientGroupForm clientGroupForm);
+    ResponseEntity<?> update(int id, ClientGroupForm clientGroupForm);
 
     ResponseEntity<?> delete(int clientGroupId);
 

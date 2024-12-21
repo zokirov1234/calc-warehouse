@@ -1,5 +1,6 @@
 package com.company.service;
 
+import com.company.model.form.UserWarehouseForm;
 import com.company.model.form.WarehouseForm;
 import org.springframework.http.ResponseEntity;
 
@@ -14,4 +15,6 @@ public interface WarehouseService {
     ResponseEntity<?> listWarehouses();
 
     ResponseEntity<?> getWarehouse(int id);
+
+    ResponseEntity<?> addUserWarehouse(UserWarehouseForm userWarehouseForm);
 }

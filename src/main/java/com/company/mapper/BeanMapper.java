@@ -44,8 +44,28 @@ public class BeanMapper {
     }
 
     @Bean
-    public TypeMaterialsMapper typeMaterialsMapper() {
-        return Mappers.getMapper(TypeMaterialsMapper.class);
+    public MaterialTypesMapper materialTypesMapper() {
+        return Mappers.getMapper(MaterialTypesMapper.class);
     }
+
+    @Bean
+    public WarehouseCategoryMapper warehouseCategoryMapper() {
+        return Mappers.getMapper(WarehouseCategoryMapper.class);
+    }
+    @Bean
+    public WarehouseSubCategoryMapper warehouseSubCategoryMapper() {
+        return Mappers.getMapper(WarehouseSubCategoryMapper.class);
+    }
+
+    @Bean
+    public AcceptanceMapper acceptanceMapper() {
+        return Mappers.getMapper(AcceptanceMapper.class);
+    }
+
+    @Bean
+    public AcceptanceInfoMapper acceptanceInfoMapper() {
+        return Mappers.getMapper(AcceptanceInfoMapper.class);
+    }
+
 
 }

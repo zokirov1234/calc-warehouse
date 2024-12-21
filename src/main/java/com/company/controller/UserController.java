@@ -1,13 +1,14 @@
 package com.company.controller;
 
+import com.company.model.form.UserCreateForm;
+import com.company.model.form.UserForm;
+import com.company.model.form.UserListForm;
+import com.company.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import com.company.model.form.UserForm;
-import com.company.model.form.UserListForm;
-import com.company.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -71,6 +72,12 @@ public class UserController {
     ) {
         log.info("User deleting by id {}", id);
         return userService.deleteUserById(id);
+    }
+
+    @PostMapping("/add")
+    public ResponseEntity<?> addUser(@RequestBody UserCreateForm userCreateForm) {
+        log.info("Add user {}", userCreateForm);
+        return userService.createUser(userCreateForm);
     }
 
 

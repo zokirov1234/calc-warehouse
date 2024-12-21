@@ -3,10 +3,12 @@ package com.company.service.impl;
 import com.company.mapper.WarehouseMapper;
 import com.company.model.dto.ResponseDto;
 import com.company.model.entity.Warehouse;
+import com.company.model.form.UserWarehouseForm;
 import com.company.model.form.WarehouseForm;
 import com.company.repository.WarehouseRepository;
+import com.company.service.UserWarehouseService;
 import com.company.service.WarehouseService;
-import com.company.util.BaseUtil;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -15,95 +17,91 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+import static com.company.util.ResponseBaseUtil.buildResponse;
+
 @Service
 @AllArgsConstructor
 @Slf4j
 public class WarehouseServiceImpl implements WarehouseService {
 
     private final WarehouseRepository warehouseRepository;
-    private final BaseUtil baseUtil;
     private final WarehouseMapper warehouseMapper;
+    private final UserWarehouseService userWarehouseService;
 
     @Override
     public ResponseEntity<?> addWarehouse(WarehouseForm warehouseForm) {
-
-        ResponseDto<?> responseDto;
-
         try {
             warehouseRepository.save(warehouseMapper.warehouseFormToWarehouse(warehouseForm));
             log.info("Warehouse added successfully");
-            responseDto = baseUtil.convertResponseDto(null, "Warehouse added successfully", true, 200);
-            return ResponseEntity.status(200).body(responseDto);
+            return buildResponse(null, "Warehouse added successfully", true, 200);
         } catch (Exception exception) {
-            log.error("Something went wrong : {} while adding warehouse {}", exception.getCause(), warehouseForm);
-            responseDto = baseUtil.convertResponseDto(null, "Warehouse added failed", false, 500);
-            return ResponseEntity.status(500).body(responseDto);
+            log.error("Something went wrong while adding warehouse: {} {}", exception.getMessage(), warehouseForm, exception);
+            return buildResponse(null, "Warehouse addition failed", false, 500);
         }
     }
 
+    @Transactional
     @Override
     public ResponseEntity<?> updateWarehouse(WarehouseForm warehouseForm, int id) {
-        ResponseDto<?> responseDto;
-
         try {
             warehouseRepository.updateWarehouse(warehouseForm.getName(), id);
             log.info("Warehouse updated successfully");
-            responseDto = baseUtil.convertResponseDto(null, "Warehouse updated successfully", true, 200);
-            return ResponseEntity.status(200).body(responseDto);
+            return buildResponse(null, "Warehouse updated successfully", true, 200);
         } catch (Exception exception) {
-            log.error("Something went wrong : {} while updating warehouse {}", exception.getCause(), warehouseForm);
-            responseDto = baseUtil.convertResponseDto(null, "Warehouse updated failed", false, 500);
-            return ResponseEntity.status(500).body(responseDto);
+            log.error("Something went wrong while updating warehouse: {} {}", exception.getMessage(), warehouseForm, exception);
+            return buildResponse(null, "Warehouse update failed", false, 500);
         }
     }
 
+    @Transactional
     @Override
     public ResponseEntity<?> deleteWarehouse(int id) {
-        ResponseDto<?> responseDto;
-
         try {
             warehouseRepository.deleteWarehouseByState(id);
             log.info("Warehouse deleted successfully");
-            responseDto = baseUtil.convertResponseDto(null, "Warehouse deleted successfully", true, 200);
-            return ResponseEntity.status(200).body(responseDto);
+            return buildResponse(null, "Warehouse deleted successfully", true, 200);
         } catch (Exception exception) {
-            log.error("Something went wrong : {} while deleting warehouse {}", exception.getCause(), id);
-            responseDto = baseUtil.convertResponseDto(null, "Warehouse deleted failed", false, 500);
-            return ResponseEntity.status(500).body(responseDto);
+            log.error("Something went wrong while deleting warehouse: {}", id, exception);
+            return buildResponse(null, "Warehouse deletion failed", false, 500);
         }
     }
 
     @Override
     public ResponseEntity<?> listWarehouses() {
-        ResponseDto<?> responseDto;
-
         List<Warehouse> wareList = warehouseRepository.getWarehouseListByState();
-
         log.info("Get list of warehouses");
-        responseDto = baseUtil.convertResponseDto(wareList, "Warehouse list", true, 200);
-        return ResponseEntity.status(200).body(responseDto);
+        return buildResponse(wareList, "Warehouse list", true, 200);
     }
 
     @Override
     public ResponseEntity<?> getWarehouse(int id) {
-        ResponseDto<?> responseDto;
-
         try {
             Optional<Warehouse> ware = warehouseRepository.findById(id);
             if (ware.isEmpty()) {
                 log.info("Warehouse not found");
-                responseDto = baseUtil.convertResponseDto(null, "Warehouse not found", true, 404);
-                return ResponseEntity.status(404).body(responseDto);
+                return buildResponse(null, "Warehouse not found", true, 404);
             }
             log.info("Warehouse found");
-            responseDto = baseUtil.convertResponseDto(ware.get(), "Warehouse found", true, 200);
-            return ResponseEntity.status(200).body(responseDto);
+            return buildResponse(ware.get(), "Warehouse found", true, 200);
         } catch (Exception exception) {
-            log.error("Something went wrong");
-            responseDto = baseUtil.convertResponseDto(null, "Something went wrong", false, 500);
-            return ResponseEntity.status(500).body(responseDto);
+            log.error("Something went wrong while retrieving warehouse: {}", id, exception);
+            return buildResponse(null, "Something went wrong", false, 500);
         }
     }
 
+    @Override
+    public ResponseEntity<?> addUserWarehouse(UserWarehouseForm userWarehouseForm) {
+        ResponseDto<?> responseDto = userWarehouseService.addUserWarehouse(userWarehouseForm);
 
+        if (responseDto == null || !responseDto.getSuccess()) {
+            return buildResponse(
+                    null,
+                    responseDto != null ? responseDto.getMessage() : "Unknown error occurred",
+                    false,
+                    responseDto != null ? responseDto.getCode() : 500
+            );
+        }
+
+        return ResponseEntity.status(responseDto.getCode()).body(responseDto);
+    }
 }
